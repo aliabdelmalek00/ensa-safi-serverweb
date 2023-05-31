@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Ensa Safi Etudiants Management Systems</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    form {
+      margin-bottom: 20px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="submit"] {
+      padding: 8px;
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Ensa Safi Etudiants Management Systems</h1>
+
+  <form id="studentForm">
+    <input type="text" id="nameInput" placeholder="Name" required>
+    <input type="email" id="emailInput" placeholder="Email" required>
+    <input type="text" id="addressInput" placeholder="Address" required>
+    <input type="text" id="filierInput" placeholder="Filier" required>
+    <input type="text" id="deptInput" placeholder="Dept" required>
+    <input type="submit" value="Ajouter un etudiant">
+  </form>
+
+  <table id="studentTable">
+    <tr>
+      <th>Nom</th>
+      <th>Email</th>
+      <th>Address</th>
+      <th>Filier</th>
+      <th>Dept</th>
+      <th></th>
+    </tr>
+  </table>
+
+  <script>
+    // Fetch all students and display them in the table
+    function fetchStudents() {
+      fetch('http://localhost:3000/etudiants')
+        .then(response => response.json())
+        .then(data => {
+          const studentTable = document.getElementById('studentTable');
+
+          // Clear table content
+          while (studentTable.rows.length > 1) {
+            studentTable.deleteRow(1);
+          }
+
+          // Populate table with student data
+          data.forEach(student => {
+            const row = studentTable.insertRow();
+            row.insertCell().textContent = student.name;
+            row.insertCell().textContent = student.email;
+            row.insertCell().textContent = student.address;
+            row.insertCell().textContent = student.filier;
+            row.insertCell().textContent = student.dept;
+
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Supprimer';
+            deleteButton.addEventListener('click', () => deleteStudent(student.id));
+            row.insertCell().appendChild(deleteButton);
+          });
+        })
+        .catch(error => console.error('Error fetching students:', error));
+    }
+
+    // Add a new student
+    document.getElementById('studentForm').addEventListener('submit', event => {
+      event.preventDefault();
+
+      const name = document.getElementById('nameInput').value;
+      const email = document.getElementById('emailInput').value;
+      const address = document.getElementById('addressInput').value;
+      const filier = document.getElementById('filierInput').value;
+      const dept = document.getElementById('deptInput').value;
+
+      fetch('http://localhost:3000/students', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, address, filier, dept })
+      })
+        .then(response => response.json())
+        .then(() => {
+          fetchStudents();
+          document.getElementById('studentForm').reset();
+})
+.catch(error => console.error('Error adding student:', error));
+});
+fetchStudents();
+</script>
+</body>
+</html>
